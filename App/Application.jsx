@@ -1,64 +1,64 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserWindow } from 'electron';
+import { Provider } from 'react-redux';
 import {
   Layout,
-  Header,
-  Content,
-  Menu,
-  MenuItem,
-  IconButton,
-  HeaderRow,
-  HeaderTabs,
-  Tab,
-  Switch,
 } from 'react-mdl';
+
+import store from './Redux/store.js';
+
+import AppHeader from './Component/AppHeader';
+import HomeContent from './Component/HomeContent';
+import HandlerDataTable from './Component/HandlerDataTable';
+import ReceiverDataTable from './Component/ReceiverDataTable';
+import SenderDataTable from './Component/SenderDataTable';
 
 class Application extends React.Component {
   constructor(props) {
     super(props);
+    this.onChangeDevMode = this.onChangeDevMode.bind(this);
+    this.onTabChange = this.onTabChange.bind(this);
+
     this.state = {
       devMode: false,
+      tabId: 0,
     };
+  }
+
+  onTabChange(newTabId) {
+    this.setState({ tabId: newTabId });
+  }
+
+  onChangeDevMode() {
+    this.setState({ devMode: !this.state.devMode });
+  }
+
+  _contentForTabIndex() {
+    switch (this.state.tabId) {
+      case 1:
+        return (<ReceiverDataTable />);
+
+      case 2:
+        return (<HandlerDataTable />);
+
+      case 3:
+        return (<SenderDataTable />);
+
+      default:
+        return (<HomeContent />);
+    }
   }
 
   render() {
     return (
       <div>
         <Layout fixedHeader fixedTabs>
-          <Header>
-            <HeaderRow title="Brain Middleware">
-              <div style={{ position: 'relative' }}>
-                <IconButton name="more_vert" id="mainMenu" ripple />
-                <Menu target="mainMenu" align="right" ripple>
-                  <MenuItem>Import plugin</MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      this.setState({ devMode: !this.state.devMode });
-                    }}
-                  >
-                    Dev Mode
-                    <Switch
-                      id="switch2"
-                      checked={this.state.devMode}
-                      onChange={(event) => {
-                        this.setState({ devMode: !event.target.checked });
-                      }}
-                    />
-                  </MenuItem>
-                  <MenuItem>Dev Tools</MenuItem>
-                  <MenuItem>About</MenuItem>
-                </Menu>
-              </div>
-            </HeaderRow>
-            <HeaderTabs ripple onChange={(tabId) => {}}>
-              <Tab>Home</Tab>
-              <Tab>Receivers</Tab>
-              <Tab>Handlers</Tab>
-              <Tab>Senders</Tab>
-            </HeaderTabs>
-          </Header>
-          <Content />
+          <AppHeader
+            devMode={this.state.devMode}
+            onChangeDevMode={this.onChangeDevMode}
+            onTabChange={this.onTabChange}
+          />
+          {this._contentForTabIndex()}
         </Layout>
       </div>
     );
@@ -66,5 +66,10 @@ class Application extends React.Component {
 }
 
 window.onload = () => {
-  ReactDOM.render(<Application />, document.getElementById('root'));
+  ReactDOM.render(
+    <Provider store={store}>
+      <Application />
+    </Provider>,
+    document.getElementById('root'),
+  );
 };

@@ -1,0 +1,22 @@
+{
+    "handlers": [
+        {
+            "package": "com.gustavofao.blinkHandler",
+            "name": "Detecção piscar"
+        },
+        {
+            "package": "com.gustavofao.concentrationHandler",
+            "name": "Detecção concentracao"
+        }
+    ],
+    "receivers": [
+        {
+            "package": "com.gustavofao.neurosky.mindwave",
+            "name": "Neurosky Mindwave"
+          },
+          {
+            "package": "com.gustavofao.neurosky.tabajara",
+            "name": "Neurosky Tabajara"
+          }
+    ]
+}
