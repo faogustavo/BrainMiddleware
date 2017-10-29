@@ -11,6 +11,7 @@ import {
   Switch,
 } from 'react-mdl';
 
+import { ipcRenderer } from 'electron';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { devMode } from '../Redux/Actions';
@@ -27,15 +28,13 @@ class AppHeader extends React.Component {
               <MenuItem
                 onClick={this.props.onChangeDevMode}
               >
-      Dev Mode
+                Dev Mode
                 <Switch
                   id="switch2"
                   checked={this.props.devMode}
                   onChange={this.props.onChangeDevMode}
                 />
               </MenuItem>
-              <MenuItem>Gravações</MenuItem>
-              <MenuItem>Logs</MenuItem>
             </Menu>
           </div>
         </HeaderRow>

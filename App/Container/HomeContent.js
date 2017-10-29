@@ -48,7 +48,7 @@ class HomeContent extends React.Component {
 
     return (
       <div>
-        <h5>Parâmetros do plugin <b>{plugin.info.name}</b></h5>
+        <h6>Parâmetros do plugin <b>{plugin.info.name}</b></h6>
         {plugin.extraFields.map(field => this._generateFieldForObject(field, pkg, sender))}
       </div>
     );
@@ -72,12 +72,12 @@ class HomeContent extends React.Component {
   _status() {
     if (this.props.running) {
       return (
-        <p style={{ color: 'green' }}>Funcionando</p>
+        <span style={{ color: 'green' }}>Funcionando</span>
       );
     }
 
     return (
-      <p style={{ color: 'red' }}>Parado</p>
+      <span style={{ color: 'red' }}>Parado</span>
     );
   }
 
@@ -188,6 +188,11 @@ class HomeContent extends React.Component {
               {this._status()}
             </ListItemAction>
           </ListItem>
+          <ListItem>
+            <ListItemContent>
+              {this._renderFields()}
+            </ListItemContent>
+          </ListItem>
         </List>
         <div
           style={{
@@ -216,8 +221,8 @@ class HomeContent extends React.Component {
             Parar
           </Button>
         </div>
-        {this._renderFields()}
         {this._devMode()}
+        <br /><br />
         <Snackbar
           active={this.state.toast}
           onTimeout={() => this.setState({ toast: false })}

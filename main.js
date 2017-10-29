@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import url from 'url';
 
@@ -25,7 +25,14 @@ function createWindow() {
     }),
   );
 
-  // Open the DevTools.
+
+  // // Open the DevTools.
+  ipcMain.on('asynchronous-message', (event, arg) => {
+    console.log('event received', arg);
+    if (arg === 'toggleDevWindow') {
+      mainWindow.webContents.openDevTools();
+    }
+  });
   // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.

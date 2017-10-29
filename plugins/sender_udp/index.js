@@ -1,22 +1,22 @@
 import p from './plugin';
 
 export const info = {
-  name: 'Mindwave Listener',
-  package: 'com.gustavofao.mindwave',
-  type: 2,
+  name: 'Socket UDP',
+  package: 'com.gustavofao.udp',
+  type: 1,
 };
 
 export const extraFields = [
   {
-    text: 'Host',
-    name: 'host',
+    text: 'Receptor',
+    name: 'receiver',
     value: '127.0.0.1',
   },
   {
     text: 'Porta',
     name: 'port',
     pattern: '-?[0-9]*?',
-    value: 13854,
+    value: 7895,
     errorMessage: 'A porta deve ser do tipo numérico',
   },
 ];
