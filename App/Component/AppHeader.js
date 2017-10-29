@@ -11,6 +11,10 @@ import {
   Switch,
 } from 'react-mdl';
 
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { devMode } from '../Redux/Actions';
+
 class AppHeader extends React.Component {
   render() {
     return (
@@ -30,15 +34,15 @@ class AppHeader extends React.Component {
                   onChange={this.props.onChangeDevMode}
                 />
               </MenuItem>
-              <MenuItem>Dev Tools</MenuItem>
-              <MenuItem>About</MenuItem>
+              <MenuItem>Gravações</MenuItem>
+              <MenuItem>Logs</MenuItem>
             </Menu>
           </div>
         </HeaderRow>
         <HeaderTabs ripple onChange={this.props.onTabChange}>
           <Tab>Home</Tab>
           <Tab>Receivers</Tab>
-          <Tab>Handlers</Tab>
+          {/* <Tab>Handlers</Tab> */}
           <Tab>Senders</Tab>
         </HeaderTabs>
       </Header>
@@ -46,4 +50,10 @@ class AppHeader extends React.Component {
   }
 }
 
-export default AppHeader;
+const mapStateToProps = state => ({
+  devMode: state.app.dev,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({ onChangeDevMode: devMode }, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppHeader);

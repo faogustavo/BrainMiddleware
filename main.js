@@ -11,7 +11,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     title: 'Brain Middleware',
     width: 450,
-    height: 600,
+    height: 700,
     resizable: false,
     maximizable: false,
     fullscreenable: false,
