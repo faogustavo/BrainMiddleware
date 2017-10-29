@@ -54,7 +54,8 @@ export default class TcpSender {
 
       this.eegController.reset()
         .on('fp1', fp1)
-        .with(extraParams);
+        .with(extraParams)
+        .flush();
     } catch (exception) {
       console.log(exception.message);
     }

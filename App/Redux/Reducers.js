@@ -6,7 +6,10 @@ import * as Types from './Types';
 const initialState = {
   value: 0,
   app: {
+    toStart: false,
     running: false,
+    startError: false,
+    startErrorMessage: '',
     dev: false,
   },
   record: {
@@ -27,7 +30,34 @@ const initialState = {
 export default createReducer(initialState, {
   [Types.START_APP](state, action) {
     const newState = _.cloneDeep(state);
-    newState.app.running = !newState.app.running;
+    newState.app.toStart = true;
+    return newState;
+  },
+  [Types.STOP_APP](state, action) {
+    const newState = _.cloneDeep(state);
+    newState.app.toStart = false;
+    newState.app.running = false;
+    return newState;
+  },
+  [Types.STARTED_APP](state, action) {
+    const newState = _.cloneDeep(state);
+    newState.app.startError = false;
+    newState.app.toStart = false;
+    newState.app.running = true;
+    return newState;
+  },
+  [Types.START_ERROR](state, action) {
+    const newState = _.cloneDeep(state);
+    newState.app.startError = true;
+    newState.app.running = false;
+    newState.app.toStart = false;
+    newState.app.startErrorMessage = action.payload || 'Erro inesperado';
+    return newState;
+  },
+  [Types.START_ERROR_SHOWN](state, action) {
+    const newState = _.cloneDeep(state);
+    newState.app.startError = false;
+    newState.app.startErrorMessage = '';
     return newState;
   },
   [Types.DEV_MODE](state, action) {

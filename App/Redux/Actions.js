@@ -12,8 +12,16 @@ export const start = () => ({
   type: Types.START_APP,
 });
 
+export const stop = () => ({
+  type: Types.STOP_APP,
+});
+
 export const devMode = () => ({
   type: Types.DEV_MODE,
+});
+
+export const errorShown = () => ({
+  type: Types.START_ERROR_SHOWN,
 });
 
 export const setPluginValue = (pkg, name, value, sender) => ({

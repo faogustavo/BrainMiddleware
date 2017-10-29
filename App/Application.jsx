@@ -6,6 +6,7 @@ import store from './Redux/store';
 import { ADD_PLUGIN } from './Redux/Types';
 import ApplicationContainer from './Container/ApplicationContainer';
 import LoadPlugins from './Controller/LoadController';
+import ApplicationController from './Controller/ApplicationController';
 
 LoadPlugins().forEach((item) => {
   store.dispatch({
@@ -15,9 +16,10 @@ LoadPlugins().forEach((item) => {
 });
 
 window.onload = () => {
+  const appController = new ApplicationController(store);
   ReactDOM.render(
     <Provider store={store}>
-      <ApplicationContainer />
+      <ApplicationContainer appController={appController} />
     </Provider>,
     document.getElementById('root'),
   );

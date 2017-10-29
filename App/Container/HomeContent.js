@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 
 import _ from 'lodash';
 
-import { setPluginValue, start } from '../Redux/Actions';
+import { setPluginValue, start, stop, errorShown } from '../Redux/Actions';
 
 class HomeContent extends React.Component {
   constructor(props) {
@@ -70,6 +70,12 @@ class HomeContent extends React.Component {
   }
 
   _status() {
+    if (this.props.toStart) {
+      return (
+        <span style={{ color: 'orange' }}>Iniciando</span>
+      );
+    }
+
     if (this.props.running) {
       return (
         <span style={{ color: 'green' }}>Funcionando</span>
@@ -203,7 +209,7 @@ class HomeContent extends React.Component {
           <Button
             style={{ width: '33%', marginRight: 8 }}
             onClick={() => this._startService()}
-            disabled={this.props.running}
+            disabled={this.props.running || this.props.toStart}
             ripple
             raised
             primary
@@ -212,7 +218,7 @@ class HomeContent extends React.Component {
           </Button>
           <Button
             style={{ width: '33%', marginLeft: 8 }}
-            onClick={() => this.props.start()}
+            onClick={() => this.props.stop()}
             disabled={!this.props.running}
             ripple
             raised
@@ -229,6 +235,12 @@ class HomeContent extends React.Component {
         >
           {this.state.toastMessage}
         </Snackbar>
+        <Snackbar
+          active={this.props.hasError}
+          onTimeout={() => this.props.errorShown()}
+        >
+          {this.props.errorMessage}
+        </Snackbar>
       </Content >
     );
   }
@@ -236,7 +248,10 @@ class HomeContent extends React.Component {
 
 const mapStateToProps = state => ({
   running: state.app.running,
+  toStart: state.app.toStart,
   devMode: state.app.dev,
+  hasError: state.app.startError,
+  errorMessage: state.app.startErrorMessage,
   recording: state.record.recording,
   reproducing: state.record.reproducing,
   senderPlugin: _.find(
@@ -248,6 +263,6 @@ const mapStateToProps = state => ({
       item.info.package === state.receivers.activePlugin
   ),
 });
-const mapDispatchToProps = dispatch => bindActionCreators({ start, setPluginValue }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ start, stop, setPluginValue, errorShown }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeContent);

@@ -1,8 +1,15 @@
 import EEGData from '../Models/EEGData';
+import * as types from '../Redux/Types';
 
 export default class ApplicationController {
-  constructor() {
+  constructor(store) {
     this.data = new EEGData();
+
+    this.getState = () => store.getState();
+    this.currentState = store.getState();
+    this.dispatch = store.dispatch;
+
+    store.subscribe(this._onStoreChanged.bind(this));
   }
 
   reset(keepCustomFields) {
@@ -101,5 +108,41 @@ export default class ApplicationController {
     });
 
     return this;
+  }
+
+  flush() { }
+
+  _onStoreChanged() {
+    const state = this.getState();
+
+    const startEvent = state.app.toStart && !state.app.running && !this.currentState.app.running;
+    console.log('StartEvent', startEvent);
+    if (startEvent) {
+      this._start();
+    }
+
+    const stopEvent = !state.app.running && this.currentState.app.running;
+    console.log('StopEvent', stopEvent);
+    if (stopEvent) {
+      this._stop();
+    }
+
+    this.currentState = state;
+  }
+
+  _start() {
+    setTimeout(() => {
+      // this.dispatch({
+      //   type: types.STARTED_APP,
+      // });
+      this.dispatch({
+        type: types.START_ERROR,
+        payload: 'Ocorreu um erro ao iniciar os serviços',
+      });
+    }, 3000);
+  }
+
+  _stop() {
+    console.log('Stopping all services');
   }
 }
