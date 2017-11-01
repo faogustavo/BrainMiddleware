@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import EEGData from '../Models/EEGData';
 import * as types from '../Redux/Types';
 
@@ -110,7 +112,21 @@ export default class ApplicationController {
     return this;
   }
 
-  flush() { }
+  flush(autoReset = false) {
+    this.senderPlugin.send(this.data)
+      .then(() => {
+        console.log('SuccessFlush');
+        if (autoReset) {
+          this.reset();
+        }
+      })
+      .catch((error) => {
+        console.log('Error', error);
+        if (autoReset) {
+          this.reset();
+        }
+      });
+  }
 
   _onStoreChanged() {
     const state = this.getState();
@@ -131,18 +147,69 @@ export default class ApplicationController {
   }
 
   _start() {
-    setTimeout(() => {
-      // this.dispatch({
-      //   type: types.STARTED_APP,
-      // });
-      this.dispatch({
-        type: types.START_ERROR,
-        payload: 'Ocorreu um erro ao iniciar os serviços',
+    const state = this.getState();
+    console.log('State', state);
+
+    const senderPluginName = state.senders.activePlugin;
+    const receiverPluginName = state.receivers.activePlugin;
+    console.log('Names', senderPluginName, receiverPluginName);
+
+    const senderPluginRef = _.find(state.senders.plugins, item => item.info.package === senderPluginName);
+    const receiverPluginRef = _.find(state.receivers.plugins, item => item.info.package === receiverPluginName);
+    console.log('Refs', senderPluginRef, receiverPluginRef);
+
+    const senderParams = {};
+    const receiverParams = {};
+
+    senderPluginRef.extraFields.forEach((item) => {
+      senderParams[item.name] = item.value;
+    });
+
+    receiverPluginRef.extraFields.forEach((item) => {
+      receiverParams[item.name] = item.value;
+    });
+
+
+    const SenderPlugin = senderPluginRef.Plugin;
+    const ReceiverPlugin = receiverPluginRef.Plugin;
+
+    this.senderPlugin = new SenderPlugin();
+    this.receiverPlugin = new ReceiverPlugin(this);
+
+    this.receiverPlugin.start(receiverParams)
+      .then(() => this.senderPlugin.start(senderParams))
+      .then(() => {
+        console.log('Iniciou');
+        this.dispatch({
+          type: types.STARTED_APP,
+        });
+      })
+      .catch((error) => {
+        this.receiverPlugin.stop()
+          .then(() => this.senderPlugin.stop())
+          .then(() => {
+            console.log('Erro ao iniciar', error);
+            this.dispatch({
+              type: types.START_ERROR,
+              payload: error.message,
+            });
+          })
+          .catch(() => {
+            console.log('Erro ao iniciar', error);
+            this.dispatch({
+              type: types.START_ERROR,
+              payload: error.message,
+            });
+          });
       });
-    }, 3000);
   }
 
   _stop() {
-    console.log('Stopping all services');
+    this.receiverPlugin.stop()
+      .then(() => this.senderPlugin.stop())
+      .then(() => {
+        console.log('Stopped');
+      })
+      .catch(console.log);
   }
 }

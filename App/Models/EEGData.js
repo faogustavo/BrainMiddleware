@@ -55,6 +55,19 @@ export default class EEGData {
     this.customAttributes[name] = value;
   }
 
+  format() {
+    const obj = {};
+
+    if (JSON.stringify(obj) === JSON.stringify({})) {
+      return {
+        status: 204,
+        message: 'No data received',
+      };
+    }
+
+    return obj;
+  }
+
   set signalStrength(strength) {
     this._signalStrength = strength;
   }

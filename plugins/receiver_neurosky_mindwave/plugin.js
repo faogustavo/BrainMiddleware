@@ -1,6 +1,6 @@
 import net from 'net';
 
-export default class TcpSender {
+export default class NeuroskyReceiver {
   constructor(eegController) {
     this.eegController = eegController;
     this.connector = new net.Socket();
@@ -45,19 +45,33 @@ export default class TcpSender {
   _onDataReceived(data) {
     try {
       const json = JSON.parse(String(data));
+      let pendingFlush = false;
 
-      const fp1 = json.eegPower;
-      const extraParams = {
-        meditation: json.eSense.meditation,
-        attention: json.eSense.attention,
-      };
+      if (json.eegPower) {
+        this.eegController.reset();
 
-      this.eegController.reset()
-        .on('fp1', fp1)
-        .with(extraParams)
-        .flush();
+        const fp1 = json.eegPower;
+        this.eegController.on('fp1', fp1);
+
+        pendingFlush = true;
+      }
+
+      if (json.eSense) {
+        const extraParams = {
+          meditation: json.eSense.meditation,
+          attention: json.eSense.attention,
+        };
+        this.eegController.with(extraParams);
+        pendingFlush = true;
+      }
+
+      if (pendingFlush) {
+        this.eegController.flush();
+      } else {
+        throw new Error();
+      }
     } catch (exception) {
-      console.log(exception.message);
+      this.eegController.reset().flush(true);
     }
   }
 }

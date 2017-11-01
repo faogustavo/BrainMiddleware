@@ -129,14 +129,4 @@ export default createReducer(initialState, {
     newState.senders.activePlugin = '';
     return newState;
   },
-  [Types.ADD](state, action) {
-    const newState = Object.assign({}, state);
-    newState.value += 1;
-    return newState;
-  },
-  [Types.SUBTRACT](state, action) {
-    const newState = Object.assign({}, state);
-    newState.value -= 1;
-    return newState;
-  },
 });
