@@ -23,12 +23,11 @@ export default class UdpSender {
   }
 
   send(message) {
-    console.log('UDP', 'Send', 'Invoked');
     return new Promise((resolve, reject) => {
       if (this.flushMessage) {
-        const buffer = Buffer.from(JSON.stringify(message.format()));
+        const buffer = Buffer.from(JSON.stringify(message));
         this.connector.send(buffer, this.port, this.receiver, (error) => {
-          console.log('Flushed', message.format());
+          console.log('Flushed', message);
           if (error) {
             reject(error);
           } else {
@@ -36,7 +35,7 @@ export default class UdpSender {
           }
         });
       } else {
-        console.log('Did not flushed', 'No connection', message.format());
+        console.log('Did not flushed', 'No connection', message);
         resolve();
       }
     });

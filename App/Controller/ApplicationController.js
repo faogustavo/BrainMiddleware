@@ -113,15 +113,14 @@ export default class ApplicationController {
   }
 
   flush(autoReset = false) {
-    this.senderPlugin.send(this.data)
+    this.senderPlugin.send(this.data.format())
       .then(() => {
-        console.log('SuccessFlush');
         if (autoReset) {
           this.reset();
         }
       })
       .catch((error) => {
-        console.log('Error', error);
+        console.log('FlushError', error);
         if (autoReset) {
           this.reset();
         }
@@ -132,13 +131,11 @@ export default class ApplicationController {
     const state = this.getState();
 
     const startEvent = state.app.toStart && !state.app.running && !this.currentState.app.running;
-    console.log('StartEvent', startEvent);
     if (startEvent) {
       this._start();
     }
 
     const stopEvent = !state.app.running && this.currentState.app.running;
-    console.log('StopEvent', stopEvent);
     if (stopEvent) {
       this._stop();
     }
@@ -148,15 +145,11 @@ export default class ApplicationController {
 
   _start() {
     const state = this.getState();
-    console.log('State', state);
-
     const senderPluginName = state.senders.activePlugin;
     const receiverPluginName = state.receivers.activePlugin;
-    console.log('Names', senderPluginName, receiverPluginName);
 
     const senderPluginRef = _.find(state.senders.plugins, item => item.info.package === senderPluginName);
     const receiverPluginRef = _.find(state.receivers.plugins, item => item.info.package === receiverPluginName);
-    console.log('Refs', senderPluginRef, receiverPluginRef);
 
     const senderParams = {};
     const receiverParams = {};
@@ -179,7 +172,6 @@ export default class ApplicationController {
     this.receiverPlugin.start(receiverParams)
       .then(() => this.senderPlugin.start(senderParams))
       .then(() => {
-        console.log('Iniciou');
         this.dispatch({
           type: types.STARTED_APP,
         });

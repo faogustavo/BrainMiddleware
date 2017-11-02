@@ -3,6 +3,5 @@
     "receiver_neurosky_mindwave",
     "sender_tcp",
     "sender_udp",
-    "sender_websockets",
     "socket_io"
 ]

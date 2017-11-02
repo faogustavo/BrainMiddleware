@@ -14,11 +14,6 @@ export const extraFields = [
     value: 7895,
     errorMessage: 'A porta deve ser do tipo numérico',
   },
-  {
-    text: 'Path',
-    name: 'path',
-    value: '/',
-  },
 ];
 
 export const Plugin = p;

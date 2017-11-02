@@ -3,5 +3,6 @@ import logger from 'redux-logger';
 
 import reducer from './Reducers';
 
-const middleware = applyMiddleware(logger);
-export default createStore(reducer, middleware);
+// const middleware = applyMiddleware(logger);
+// export default createStore(reducer, middleware);
+export default createStore(reducer);

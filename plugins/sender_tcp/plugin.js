@@ -36,11 +36,10 @@ export default class TcpSender {
   }
 
   send(message) {
-    console.log('TCP', 'Send', 'Invoked');
     return new Promise((resolve, reject) => {
       if (this.socket && !this.socket.destroyed) {
-        this.socket.write(JSON.stringify(message.format()), (error) => {
-          console.log('Flushed', message.format());
+        this.socket.write(JSON.stringify(message), (error) => {
+          console.log('Flushed', message);
           if (error) {
             reject(error);
           } else {
@@ -48,7 +47,7 @@ export default class TcpSender {
           }
         });
       } else {
-        console.log('Did not flushed', 'No connection', message.format());
+        console.log('Did not flushed', 'No connection', message);
         resolve();
       }
     });

@@ -28,7 +28,6 @@ function createWindow() {
 
   // // Open the DevTools.
   ipcMain.on('asynchronous-message', (event, arg) => {
-    console.log('event received', arg);
     if (arg === 'toggleDevWindow') {
       mainWindow.webContents.openDevTools();
     }

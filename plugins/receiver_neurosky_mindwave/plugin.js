@@ -48,11 +48,8 @@ export default class NeuroskyReceiver {
       let pendingFlush = false;
 
       if (json.eegPower) {
-        this.eegController.reset();
-
         const fp1 = json.eegPower;
-        this.eegController.on('fp1', fp1);
-
+        this.eegController.reset().on('fp1', fp1);
         pendingFlush = true;
       }
 
@@ -65,12 +62,21 @@ export default class NeuroskyReceiver {
         pendingFlush = true;
       }
 
+      if (json.blinkStrength) {
+        this.eegController.with({
+          blink: json.blinkStrength,
+        });
+
+        pendingFlush = true;
+      }
+
       if (pendingFlush) {
         this.eegController.flush();
       } else {
-        throw new Error();
+        throw new Error('No data to flush');
       }
     } catch (exception) {
+      console.log('Error reading data', exception.message);
       this.eegController.reset().flush(true);
     }
   }
