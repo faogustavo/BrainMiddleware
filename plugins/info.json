@@ -1,7 +1,0 @@
-[
-    "receiver_diy_mindwave",
-    "receiver_neurosky_mindwave",
-    "sender_tcp",
-    "sender_udp",
-    "socket_io"
-]

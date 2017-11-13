@@ -1,0 +1,103 @@
+<html>
+
+    <head>
+        <title>Test</title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>+
+        <script src="/socket.io.js"></script>
+        <script type="text/javascript">
+            waves = {
+                delta: 0,
+                theta: 0,
+                lowAlpha: 0,
+                alpha: 0,
+                highAlpha: 0,
+                lowBeta: 0,
+                mediumBeta: 0,
+                highBeta: 0,
+                lowGamma: 0,
+                gamma: 0,
+                highGamma: 0,
+            };
+
+            events = {
+                attention: 0,
+                meditation: 0,
+            };
+        </script>
+    </head>
+    <body>
+        <div id="waves_chart" style="float:left"></div>
+        <div id="attention_div" style="float:left"></div>
+        <br style="clear: both">
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+                var wavesData = new google.visualization.DataTable();
+                wavesData.addColumn('string', 'Waves');
+                wavesData.addColumn('number', 'Power');
+                wavesData.addRows(Object.keys(waves).map(wave => [
+                    wave, waves[wave]
+                ]));
+
+                var wavesOptions = {'title':'Read from sensor',
+                                'width':900,
+                                'height':600};
+
+                var wavesChart = new google.visualization.ColumnChart(document.getElementById('waves_chart'));
+                wavesChart.draw(wavesData, wavesOptions);
+
+                var eventsData = new google.visualization.DataTable();
+                eventsData.addColumn('string', 'Event');
+                eventsData.addColumn('number', 'Value');
+                eventsData.addRows(Object.keys(events).map(event => [
+                    event, events[event]
+                ]));
+
+                var eventsOptions = {'title':'Read from sensor',
+                                'width':400,
+                                'height':600};
+
+                var eventsChart = new google.visualization.ColumnChart(document.getElementById('attention_div'));
+                eventsChart.draw(eventsData, eventsOptions);
+            }
+        </script>
+        <script>
+            const socket = io('http://localhost:7895');
+            socket.on("eeg", function (data) {
+                console.log(data);
+                if (data.status === 200) {
+                    waves = {
+                        ...waves,
+                        ...data.eeg.fp1
+                    };
+                    events = {
+                        ...events,
+                        ...data.events
+                    };
+                    drawChart();
+                } else {
+                    waves = {
+                        delta: 0,
+                        theta: 0,
+                        lowAlpha: 0,
+                        alpha: 0,
+                        highAlpha: 0,
+                        lowBeta: 0,
+                        mediumBeta: 0,
+                        highBeta: 0,
+                        lowGamma: 0,
+                        gamma: 0,
+                        highGamma: 0,
+                    };
+
+                    events = {
+                        attention: 0,
+                        meditation: 0,
+                    };
+                }
+            });
+        </script>
+    </body>
+</html>

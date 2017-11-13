@@ -1,9 +1,8 @@
 import _ from 'lodash';
-
-const pluginsFile = require('../../plugins/info.json');
+import fs from 'fs';
 
 export default () => _.compact(
-  pluginsFile.map((item) => {
+  fs.readdirSync(`${process.cwd()}/plugins`).map((item) => {
     try {
       return require(`../../plugins/${item}`);
     } catch (e) {

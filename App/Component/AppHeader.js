@@ -11,12 +11,42 @@ import {
   Switch,
 } from 'react-mdl';
 
-import { ipcRenderer } from 'electron';
+import _ from 'lodash';
+import fs from 'fs';
+import DecompressZip from 'decompress-zip';
+
+import { ipcRenderer, remote } from 'electron';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { devMode } from '../Redux/Actions';
 
 class AppHeader extends React.Component {
+  onInstallPlugin() {
+    remote.dialog.showOpenDialog({
+      title: 'Selecione seu plugin',
+      buttonLabel: 'Selecionar',
+      filters: [
+        { name: 'Zip', extensions: ['zip'] },
+      ],
+      properties: [
+        'openfile',
+      ],
+    }, (chooseFile) => {
+      if (chooseFile) {
+        const unZipper = new DecompressZip(chooseFile[0]);
+
+        unZipper.on('extract', (log) => {
+          remote.app.relaunch({});
+          remote.app.exit(0);
+        });
+
+        unZipper.extract({
+          path: `${process.cwd()}/plugins`,
+        });
+      }
+    });
+  }
+
   render() {
     return (
       <Header>
@@ -24,11 +54,11 @@ class AppHeader extends React.Component {
           <div style={{ position: 'relative' }}>
             <IconButton name="more_vert" id="mainMenu" ripple />
             <Menu target="mainMenu" align="right" ripple>
-              <MenuItem>Import plugin</MenuItem>
+              <MenuItem onClick={() => this.onInstallPlugin()}>Import plugin</MenuItem>
               <MenuItem
                 onClick={this.props.onChangeDevMode}
               >
-                Dev Mode
+      Dev Mode
                 <Switch
                   id="switch2"
                   checked={this.props.devMode}
