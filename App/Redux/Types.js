@@ -8,6 +8,9 @@ export const STOP_APP = 'STOP_APP';
 export const STARTED_APP = 'STARTED_APP';
 export const DEV_MODE = 'DEV_MODE';
 
+export const START_RECORDING = 'START_RECORDING';
+export const STOP_RECORDING = 'STOP_RECORDING';
+
 export const ADD_PLUGIN = 'ADD_PLUGIN';
 export const SET_PLUGIN_VALUE = 'SET_PLUGIN_VALUE';
 

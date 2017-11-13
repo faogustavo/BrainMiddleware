@@ -7,7 +7,7 @@ export default () => _.compact(
     try {
       return require(`../../plugins/${item}`);
     } catch (e) {
-      console.log('Failed to load', item);
+      console.log('Failed to load', item, e);
       return null;
     }
   }));

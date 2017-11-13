@@ -144,6 +144,8 @@ export default class EEGData {
       };
     }
 
+    obj.status = 200;
+
     return obj;
   }
 

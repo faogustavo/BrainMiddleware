@@ -8,8 +8,9 @@ export const subtract = () => ({
   type: Types.SUBTRACT,
 });
 
-export const start = () => ({
+export const start = fileName => ({
   type: Types.START_APP,
+  payload: fileName,
 });
 
 export const stop = () => ({
@@ -49,5 +50,14 @@ export const senders = {
   deactivate: pkg => ({
     type: Types.SENDER_DEACTIVATE,
     payload: pkg,
+  }),
+};
+
+export const recorder = {
+  start: () => ({
+    type: Types.START_RECORDING,
+  }),
+  stop: () => ({
+    type: Types.STOP_RECORDING,
   }),
 };

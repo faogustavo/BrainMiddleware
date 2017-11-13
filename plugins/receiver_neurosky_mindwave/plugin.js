@@ -43,6 +43,7 @@ export default class NeuroskyReceiver {
   }
 
   _onDataReceived(data) {
+    console.log('Received', String(data));
     try {
       const json = JSON.parse(String(data));
       let pendingFlush = false;

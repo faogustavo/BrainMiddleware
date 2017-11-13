@@ -9,6 +9,7 @@ const initialState = {
     toStart: false,
     running: false,
     startError: false,
+    fileName: false,
     startErrorMessage: '',
     dev: false,
   },
@@ -31,12 +32,14 @@ export default createReducer(initialState, {
   [Types.START_APP](state, action) {
     const newState = _.cloneDeep(state);
     newState.app.toStart = true;
+    newState.app.fileName = action.payload;
     return newState;
   },
   [Types.STOP_APP](state, action) {
     const newState = _.cloneDeep(state);
     newState.app.toStart = false;
     newState.app.running = false;
+    newState.app.fileName = false;
     return newState;
   },
   [Types.STARTED_APP](state, action) {
@@ -127,6 +130,16 @@ export default createReducer(initialState, {
   [Types.SENDER_DEACTIVATE](state, action) {
     const newState = _.cloneDeep(state);
     newState.senders.activePlugin = '';
+    return newState;
+  },
+  [Types.START_RECORDING](state, action) {
+    const newState = _.cloneDeep(state);
+    newState.record.recording = true;
+    return newState;
+  },
+  [Types.STOP_RECORDING](state, action) {
+    const newState = _.cloneDeep(state);
+    newState.record.recording = false;
     return newState;
   },
 });

@@ -10,6 +10,7 @@ export const extraFields = [
   {
     text: 'Porta Serial',
     name: 'com_port',
+    value: 'COM5',
   },
 ];
 

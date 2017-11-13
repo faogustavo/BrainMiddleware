@@ -12,9 +12,11 @@ import {
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { remote } from 'electron';
+
 import _ from 'lodash';
 
-import { setPluginValue, start, stop, errorShown } from '../Redux/Actions';
+import { setPluginValue, start, stop, errorShown, recorder } from '../Redux/Actions';
 
 class HomeContent extends React.Component {
   constructor(props) {
@@ -98,8 +100,8 @@ class HomeContent extends React.Component {
               justifyContent: 'center',
             }}
           >
-            {this._recordButton()}
             {this._reproduceButton()}
+            {this._recordButton()}
           </div>
         </div>
       );
@@ -112,27 +114,31 @@ class HomeContent extends React.Component {
     if (this.props.recording) {
       return (
         <Button
-          style={{ width: '33%', marginRight: 8 }}
-          onClick={() => { }}
+          style={{ width: '33%', marginLeft: 8 }}
+          onClick={() => {
+            this.props.stopRecord();
+          }}
           ripple
           raised
           accent
         >
-          Parar
+        Parar
         </Button>
       );
     }
 
     return (
       <Button
-        style={{ width: '33%', marginRight: 8 }}
-        onClick={() => { }}
-        disabled={this.props.recording || this.props.reproducing || !this.props.running}
+        style={{ width: '33%', marginLeft: 8 }}
+        onClick={() => {
+          this.props.startRecord();
+        }}
+        disabled={this.props.recording || this.props.reproducing || !this.props.running || this.props.hasFile}
         ripple
         raised
         primary
       >
-        Gravar
+      Gravar
       </Button>
     );
   }
@@ -147,21 +153,42 @@ class HomeContent extends React.Component {
           raised
           accent
         >
-          Parar
+        Parar
         </Button>
       );
     }
 
     return (
       <Button
-        style={{ width: '33%', marginLeft: 8 }}
-        onClick={() => { }}
-        disabled={this.props.recording || this.props.reproducing || !this.props.running}
+        style={{ width: '33%', marginRight: 8 }}
+        onClick={() => {
+          if (!this.props.senderPlugin) {
+            this.setState({ toast: true, toastMessage: 'Selecione um sender' });
+            return;
+          }
+
+          remote.dialog.showOpenDialog({
+            title: 'Selecione sua gravação',
+            buttonLabel: 'Selecionar',
+            filters: [
+              { name: 'Brain record', extensions: ['brec'] },
+            ],
+            properties: [
+              'openfile',
+            ],
+          }, (chooseFile) => {
+            if (chooseFile) {
+              this.setState({ toast: true, toastMessage: 'Iniciando o serviço' });
+              this.props.start(chooseFile[0]);
+            }
+          });
+        }}
+        disabled={this.props.recording || this.props.reproducing || this.props.running}
         ripple
         raised
         primary
       >
-        Reproduzir
+      Reproduzir
       </Button>
     );
   }
@@ -188,7 +215,7 @@ class HomeContent extends React.Component {
         <List>
           <ListItem>
             <ListItemContent>
-              Status do serviço:
+      Status do serviço:
             </ListItemContent>
             <ListItemAction>
               {this._status()}
@@ -214,17 +241,17 @@ class HomeContent extends React.Component {
             raised
             primary
           >
-            Iniciar
+      Iniciar
           </Button>
           <Button
             style={{ width: '33%', marginLeft: 8 }}
             onClick={() => this.props.stop()}
-            disabled={!this.props.running}
+            disabled={!this.props.running || this.props.recording}
             ripple
             raised
             accent
           >
-            Parar
+      Parar
           </Button>
         </div>
         {this._devMode()}
@@ -249,6 +276,7 @@ class HomeContent extends React.Component {
 const mapStateToProps = state => ({
   running: state.app.running,
   toStart: state.app.toStart,
+  hasFile: state.app.fileName,
   devMode: state.app.dev,
   hasError: state.app.startError,
   errorMessage: state.app.startErrorMessage,
@@ -256,13 +284,13 @@ const mapStateToProps = state => ({
   reproducing: state.record.reproducing,
   senderPlugin: _.find(
     state.senders.plugins, item =>
-      item.info.package === state.senders.activePlugin
+      item.info.package === state.senders.activePlugin,
   ),
   receiverPlugin: _.find(
     state.receivers.plugins, item =>
-      item.info.package === state.receivers.activePlugin
+      item.info.package === state.receivers.activePlugin,
   ),
 });
-const mapDispatchToProps = dispatch => bindActionCreators({ start, stop, setPluginValue, errorShown }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ start, stop, setPluginValue, errorShown, startRecord: recorder.start, stopRecord: recorder.stop }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeContent);

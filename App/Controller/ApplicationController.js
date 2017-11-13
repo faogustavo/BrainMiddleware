@@ -1,4 +1,9 @@
 import _ from 'lodash';
+import fs from 'fs';
+
+import { remote } from 'electron';
+
+import FileReceiverPlugin from './FileReceiverPlugin';
 
 import EEGData from '../Models/EEGData';
 import * as types from '../Redux/Types';
@@ -6,6 +11,8 @@ import * as types from '../Redux/Types';
 export default class ApplicationController {
   constructor(store) {
     this.data = new EEGData();
+    this.records = [];
+    this.lastRecordTime = 0;
 
     this.getState = () => store.getState();
     this.currentState = store.getState();
@@ -16,6 +23,19 @@ export default class ApplicationController {
 
   reset(keepCustomFields) {
     this.data.newCycle(keepCustomFields);
+
+    if (this.currentState.record.recording) {
+      const now = Date.now();
+
+      this.records.push({
+        delay: this.records.length > 0 ? now - this.lastRecordTime : 0,
+        method: 'reset',
+        args: [],
+      });
+
+      this.lastRecordTime = now;
+    }
+
     return this;
   }
 
@@ -101,6 +121,18 @@ export default class ApplicationController {
         break;
     }
 
+    if (this.currentState.record.recording) {
+      const now = Date.now();
+
+      this.records.push({
+        delay: this.records.length > 0 ? now - this.lastRecordTime : 0,
+        method: 'on',
+        args: [point, data],
+      });
+
+      this.lastRecordTime = now;
+    }
+
     return this;
   }
 
@@ -108,6 +140,18 @@ export default class ApplicationController {
     Object.keys(customData).forEach((key) => {
       this.data.customAttribute(key, customData[key]);
     });
+
+    if (this.currentState.record.recording) {
+      const now = Date.now();
+
+      this.records.push({
+        delay: this.records.length > 0 ? now - this.lastRecordTime : 0,
+        method: 'with',
+        args: [customData],
+      });
+
+      this.lastRecordTime = now;
+    }
 
     return this;
   }
@@ -125,6 +169,19 @@ export default class ApplicationController {
           this.reset();
         }
       });
+
+
+    if (this.currentState.record.recording) {
+      const now = Date.now();
+
+      this.records.push({
+        delay: this.records.length > 0 ? now - this.lastRecordTime : 0,
+        method: 'flush',
+        args: [autoReset],
+      });
+
+      this.lastRecordTime = now;
+    }
   }
 
   _onStoreChanged() {
@@ -132,7 +189,7 @@ export default class ApplicationController {
 
     const startEvent = state.app.toStart && !state.app.running && !this.currentState.app.running;
     if (startEvent) {
-      this._start();
+      this._start(state.app.fileName);
     }
 
     const stopEvent = !state.app.running && this.currentState.app.running;
@@ -140,34 +197,69 @@ export default class ApplicationController {
       this._stop();
     }
 
+    const stopRecordEvent = state.record.recording !== this.currentState.record.recording && !state.record.recording;
+    if (stopRecordEvent) {
+      const saveRecords = _.cloneDeep(this.records);
+
+      this.records = [];
+      this.lastRecordTime = 0;
+
+      remote.dialog.showSaveDialog({
+        title: 'Salvar gavação de leituras',
+        buttonLabel: 'Salvar',
+        filters: [
+          { name: 'Brain record', extensions: ['brec'] },
+        ],
+      }, (dir) => {
+        if (dir) {
+          fs.writeFile(dir, JSON.stringify(saveRecords), (err) => {
+            if (err) {
+              console.log('Error', err);
+            } else {
+              console.log('File saved');
+            }
+          });
+        }
+      });
+    }
+
     this.currentState = state;
   }
 
-  _start() {
+  _start(fileName) {
     const state = this.getState();
-    const senderPluginName = state.senders.activePlugin;
-    const receiverPluginName = state.receivers.activePlugin;
-
-    const senderPluginRef = _.find(state.senders.plugins, item => item.info.package === senderPluginName);
-    const receiverPluginRef = _.find(state.receivers.plugins, item => item.info.package === receiverPluginName);
 
     const senderParams = {};
+    const senderPluginName = state.senders.activePlugin;
+    const senderPluginRef = senderPluginName && _.find(state.senders.plugins, item => item.info.package === senderPluginName);
+
     const receiverParams = {};
+    const receiverPluginName = state.receivers.activePlugin;
+    const receiverPluginRef = receiverPluginName && _.find(state.receivers.plugins, item => item.info.package === receiverPluginName);
 
-    senderPluginRef.extraFields.forEach((item) => {
-      senderParams[item.name] = item.value;
-    });
+    if (senderPluginRef.extraFields) {
+      senderPluginRef.extraFields.forEach((item) => {
+        senderParams[item.name] = item.value;
+      });
+    }
 
-    receiverPluginRef.extraFields.forEach((item) => {
-      receiverParams[item.name] = item.value;
-    });
-
+    if (receiverPluginRef.extraFields) {
+      receiverPluginRef.extraFields.forEach((item) => {
+        receiverParams[item.name] = item.value;
+      });
+    }
 
     const SenderPlugin = senderPluginRef.Plugin;
-    const ReceiverPlugin = receiverPluginRef.Plugin;
+    const ReceiverPlugin = receiverPluginRef && receiverPluginRef.Plugin;
 
     this.senderPlugin = new SenderPlugin();
-    this.receiverPlugin = new ReceiverPlugin(this);
+
+    if (fileName) {
+      receiverParams.fileName = fileName;
+      this.receiverPlugin = new FileReceiverPlugin(this);
+    } else {
+      this.receiverPlugin = new ReceiverPlugin(this);
+    }
 
     this.receiverPlugin.start(receiverParams)
       .then(() => this.senderPlugin.start(senderParams))

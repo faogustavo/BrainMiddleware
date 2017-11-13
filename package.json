@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron -r babel-register .",
     "build": "babel App/ -d dist/",
-    "prepublish": "yarn run build"
+    "prepublish": "yarn run build",
+    "install": "electron-rebuild"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
@@ -25,6 +26,7 @@
     "babel-preset-flow": "^6.23.0",
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.24.1",
+    "electron-rebuild": "^1.6.0",
     "eslint": "^4.4.1",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
@@ -44,6 +46,7 @@
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
+    "serialport": "^6.0.4",
     "serve": "^6.0.6",
     "socket.io": "^2.0.4"
   }
