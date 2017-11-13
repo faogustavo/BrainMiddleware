@@ -8,6 +8,7 @@
 - Ao fim executar *npm start* para iniciar a aplicação
 
 ## Plugins podem ser instalados através do menu superior utilizando qualquer um dos *zips* que estão na pasta de *samples*
+**Após instalado a ferramenta irá reiniciar.**
 
 ## Simulações podem ser rodadas utilizando qualquer arquivo *.brc* também disponíveis na pasta *samples*.
 
