@@ -1,6 +1,7 @@
 # Requisitos
 - NodeJS compatível com versão 8.6.0
 - NPMJS compatível com versão 5.3.0
+- Python 2.7
 
 # Instalação/Execução
 - Abrir a pasta do projeto no terminal/console/cmd/power shell
